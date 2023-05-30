@@ -1,0 +1,104 @@
+CREATE TABLE IF NOT EXISTS data.region
+(
+    "Identifier" integer NOT NULL,
+    description character varying(50) COLLATE pg_catalog."default",
+    CONSTRAINT pk_region_id PRIMARY KEY ("Identifier")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS data.region
+    OWNER to postgres;
+
+CREATE TABLE IF NOT EXISTS data.measurement
+(
+    city integer,
+    mark timestamp without time zone,
+    temperature double precision,
+    CONSTRAINT fk_measurement_city FOREIGN KEY (city)
+        REFERENCES data.city (identifier) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS data.measurement
+    OWNER to postgres;
+-- Index: fki_fk_measurement_city
+
+-- DROP INDEX IF EXISTS data.fki_fk_measurement_city;
+
+CREATE INDEX IF NOT EXISTS fki_fk_measurement_city
+    ON data.measurement USING btree
+    (city ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE TABLE IF NOT EXISTS data.country
+(
+    identifier integer NOT NULL,
+    region integer,
+    description character varying(50) COLLATE pg_catalog."default",
+    CONSTRAINT pk_country_id PRIMARY KEY (identifier),
+    CONSTRAINT fk_country_region FOREIGN KEY (region)
+        REFERENCES data.region ("Identifier") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS data.country
+    OWNER to postgres;
+-- Index: fki_fk_country_region
+
+-- DROP INDEX IF EXISTS data.fki_fk_country_region;
+
+CREATE INDEX IF NOT EXISTS fki_fk_country_region
+    ON data.country USING btree
+    (region ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+CREATE TABLE IF NOT EXISTS data.coastline
+(
+    shape integer,
+    segment integer,
+    latitude double precision,
+    longitude double precision
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS data.coastline
+    OWNER to postgres;
+
+CREATE TABLE IF NOT EXISTS data.city
+(
+    identifier integer NOT NULL,
+    country integer,
+    description character varying(50) COLLATE pg_catalog."default",
+    latitude double precision,
+    longitude double precision,
+    dataset character varying(10) COLLATE pg_catalog."default",
+    CONSTRAINT pk_city_id PRIMARY KEY (identifier),
+    CONSTRAINT fk_city_country FOREIGN KEY (country)
+        REFERENCES data.country (identifier) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS data.city
+    OWNER to postgres;
+-- Index: fki_fk_city_country
+
+-- DROP INDEX IF EXISTS data.fki_fk_city_country;
+
+CREATE INDEX IF NOT EXISTS fki_fk_city_country
+    ON data.city USING btree
+    (country ASC NULLS LAST)
+    TABLESPACE pg_default;
